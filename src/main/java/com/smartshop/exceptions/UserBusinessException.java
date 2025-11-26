@@ -1,6 +1,6 @@
 package com.smartshop.exceptions;
 
-class UserBusinessException extends RuntimeException {
+public class UserBusinessException extends RuntimeException {
     public UserBusinessException(String message) {
         super(message);
     }

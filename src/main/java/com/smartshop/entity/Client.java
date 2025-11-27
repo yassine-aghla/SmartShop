@@ -7,6 +7,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -37,7 +39,9 @@ public class Client {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Order> orders = new ArrayList<>();
 
     @Column(name = "total_orders", nullable = false)
     @Builder.Default
@@ -84,4 +88,62 @@ public class Client {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public CustomerTier calculateTier() {
+        if (this.totalOrders >= 20 || this.totalSpent.compareTo(new BigDecimal("15000")) >= 0) {
+            return CustomerTier.PLATINUM;
+        }
+        if (this.totalOrders >= 10 || this.totalSpent.compareTo(new BigDecimal("5000")) >= 0) {
+            return CustomerTier.GOLD;
+        }
+        if (this.totalOrders >= 3 || this.totalSpent.compareTo(new BigDecimal("1000")) >= 0) {
+            return CustomerTier.SILVER;
+        }
+        return CustomerTier.BASIC;
+    }
+
+
+    public void updateTier() {
+        this.customerTier = calculateTier();
+    }
+
+
+    public void updateStatisticsAfterOrder(BigDecimal orderAmount) {
+        this.totalOrders = this.totalOrders + 1;
+        this.totalSpent = this.totalSpent.add(orderAmount);
+
+        LocalDateTime now = LocalDateTime.now();
+        if (this.firstOrderDate == null) {
+            this.firstOrderDate = now;
+        }
+        this.lastOrderDate = now;
+
+        updateTier();
+    }
+
+
+    public BigDecimal getDiscountPercentage(BigDecimal sousTotal) {
+        switch (this.customerTier) {
+            case PLATINUM:
+                if (sousTotal.compareTo(new BigDecimal("1200")) >= 0) {
+                    return new BigDecimal("15");
+                }
+                break;
+            case GOLD:
+                if (sousTotal.compareTo(new BigDecimal("800")) >= 0) {
+                    return new BigDecimal("10");
+                }
+                break;
+            case SILVER:
+                if (sousTotal.compareTo(new BigDecimal("500")) >= 0) {
+                    return new BigDecimal("5");
+                }
+                break;
+            default:
+                break;
+        }
+        return BigDecimal.ZERO;
+    }
+
+
 }

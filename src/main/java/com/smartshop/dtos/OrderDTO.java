@@ -64,8 +64,6 @@ public class OrderDTO {
 
     private OrderStatus statut;
 
-    private CustomerTier clientTierAtOrder;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

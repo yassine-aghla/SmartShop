@@ -101,10 +101,6 @@ public class Order {
     @Builder.Default
     private OrderStatus statut = OrderStatus.PENDING;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "client_tier_at_order")
-    private CustomerTier clientTierAtOrder;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

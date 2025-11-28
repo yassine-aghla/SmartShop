@@ -62,7 +62,6 @@ public class OrderService {
                 .reference(generateOrderReference())
                 .orderDate(LocalDateTime.now())
                 .statut(OrderStatus.PENDING)
-                .clientTierAtOrder(client.getCustomerTier())
                 .tauxTVA(tauxTVA)
                 .notes(createOrderDTO.getNotes())
                 .orderItems(new ArrayList<>())
